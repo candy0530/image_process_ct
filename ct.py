@@ -25,7 +25,7 @@ class ImageProcessing:
         self.img = np.array(alter_img, dtype=np.uint8)
         self.rows, self.cols = self.img.shape[:2]
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def rotate_image(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -43,7 +43,7 @@ class ImageProcessing:
         self.img = np.array(alter_img, dtype=np.uint8)
         self.rows, self.cols = self.img.shape[:2]
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def image_nagetives(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -54,7 +54,7 @@ class ImageProcessing:
                 I, H, S = self._RGB_to_IHS(gray, gray, gray)
                 self.img[y, x] = self._IHS_to_RGB(1-I, np.nan_to_num(H), S)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def peak_and_valley_filter(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -180,7 +180,7 @@ class ImageProcessing:
             for y in xrange(self.cols):
                 self.img[x, y] = (valley_filter_R[x][y], valley_filter_G[x][y], valley_filter_B[x][y])
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def median_filter(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -253,7 +253,7 @@ class ImageProcessing:
             for y in xrange(self.cols):
                 self.img[x, y] = (median_filter_R[x][y], median_filter_G[x][y], median_filter_B[x][y])
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def histogram_equalization(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -279,7 +279,7 @@ class ImageProcessing:
                 I, H, S = self._RGB_to_IHS(red, green, blue)
                 self.img[y, x] = self._IHS_to_RGB(intensity[I*255//1], np.nan_to_num(H), S)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def bright_image(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -289,7 +289,7 @@ class ImageProcessing:
                 I, H, S = self._RGB_to_IHS(red, green, blue)
                 self.img[y, x] = self._IHS_to_RGB(I*1.5 if I*1.5 < 1 else 1, np.nan_to_num(H), S)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def dark_image(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -299,7 +299,7 @@ class ImageProcessing:
                 I, H, S = self._RGB_to_IHS(red, green, blue)
                 self.img[y, x] = self._IHS_to_RGB(I*0.5, np.nan_to_num(H), S)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def binary_image(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -316,27 +316,64 @@ class ImageProcessing:
                     self.img[y, x] = (0, 0, 0)
                 else:
                     self.img[y, x] = (255, 255, 255)
-        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5, 5))
-        # self.img = cv2.morphologyEx(self.img, cv2.MORPH_OPEN, kernel)
-        # self.img = cv2.morphologyEx(self.img, cv2.MORPH_CLOSE, kernel)
-        # self.img = cv2.erode(self.img, kernel)
-        # self.img = cv2.dilate(self.img, kernel)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
+
+    def corp_dialog(self):
+        self.origin_img.append(copy.deepcopy(self.img))
+        origin = copy.deepcopy(self.img)
+        row1, row2 = self._cal_row_bright()
+        col1, col2 = self._cal_col_bright()
+        alter_img = []
+        for x in range(row1, row2):
+            alter_img.append([])
+            for y in range(col1, col2):
+                alter_img[-1].append(self.img[x, y])
+        self.img = np.array(alter_img, dtype=np.uint8)
+        self.rows, self.cols = self.img.shape[:2]
+        self.show_img()
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
+
+    def _cal_row_bright(self):
+        count_row = []
+        for x in xrange(self.rows):
+            count_row.append(0)
+            for y in xrange(self.cols):
+                if self.img[x, y][0] == 255:
+                    count_row[-1] += 1
+        import heapq
+        max_two_value = heapq.nlargest(2, count_row)
+        if max_two_value[0] == max_two_value[1]:
+            return count_row.index(max_two_value[0], 0), count_row.index(max_two_value[0], 1)
+        return count_row.index(max_two_value[0]), count_row.index(max_two_value[1])
+
+    def _cal_col_bright(self):
+        count_col = []
+        for x in xrange(self.cols):
+            count_col.append(0)
+            for y in xrange(self.rows):
+                if self.img[y, x][0] == 255:
+                    count_col[-1] += 1
+        import heapq
+        max_two_value = heapq.nlargest(2, count_col)
+        if max_two_value[0] == max_two_value[1]:
+            return count_col.index(max_two_value[0], 0), count_col.index(max_two_value[0], 1)
+        return count_col.index(max_two_value[0]), count_col.index(max_two_value[1])
+
 
     def erode_dilate(self):
         self.origin_img.append(copy.deepcopy(self.img))
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5, 5))
         self.img = cv2.morphologyEx(self.img, cv2.MORPH_OPEN, kernel)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def dilate_erode(self):
         self.origin_img.append(copy.deepcopy(self.img))
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5, 5))
         self.img = cv2.morphologyEx(self.img, cv2.MORPH_CLOSE, kernel)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def _RGB_to_IHS(self, R, G, B):
         # Return (I, H, S)
@@ -385,7 +422,7 @@ class ImageProcessing:
                 gray = red*0.299+green*0.587+blue*0.114
                 self.img[y,x] = (gray, gray, gray)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def red_color_transform(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -394,7 +431,7 @@ class ImageProcessing:
                 r, g, b = self.img[y, x]
                 self.img[y, x] = (r*1.2 if r*1.2 < 255 else 255, g, b)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def green_color_transform(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -403,7 +440,7 @@ class ImageProcessing:
                 r, g, b = self.img[y, x]
                 self.img[y, x] = (r, g*1.2 if g*1.2 < 255 else 255, b)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def blue_color_transform(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -412,7 +449,18 @@ class ImageProcessing:
                 r, g, b = self.img[y, x]
                 self.img[y, x] = (r, g, b*1.2 if b*1.2 < 255 else 255)
         self.show_img()
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
+
+    def corp_dialog_one_step(self):
+        self.load_img()
+        self.binary_image()
+        self.corp_dialog()
+
+    def corp_table_one_step(self):
+        self.load_img()
+        self.corp_image()
+        self.binary_image()
+        self.corp_dialog()
 
     def load_img(self):
         # file_name = 'data/' + self.image_filename.get()
@@ -426,11 +474,11 @@ class ImageProcessing:
                 blue, green, red = self.img[y, x]
                 self.img[y, x] = (red, green, blue)
 
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def recover_img(self):
         self.img = self.origin_img.pop() if len(self.origin_img) > 0 else self.img
-        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=6)
+        Label(self.root, text=u'已變動次數：'+str(len(self.origin_img))).grid(row=2, columnspan=8)
 
     def show_img(self):
         self.fig = plt.figure()
@@ -451,36 +499,32 @@ class ImageProcessing:
         self.image_filename = Label(self.root, text=u'Image 檔名：')
         self.image_filename.grid(row=0, column=0, columnspan=5, sticky=W)
         Button(self.root, text = 'Select Image', command=self.openFile).grid(row=0, column=5, columnspan=3)
-        comfirm_button = Button(self.root, text=u'讀取 Image', command=self.load_img)
-        comfirm_button.grid(row=1, columnspan=8)
 
-        Button(self.root, text=u'裁切', command=self.corp_image).grid(row=2, column=0, columnspan=2)
-        Button(self.root, text=u'二值化', command=self.binary_image).grid(row=2, column=2, columnspan=2)
-        Button(self.root, text=u'轉成灰階', command=self.RGB_to_Gray).grid(row=2, column=4, columnspan=2)
-        Button(self.root, text=u'侵蝕擴張法', command=self.erode_dilate).grid(row=2, column=6, columnspan=2)
-        # image_nagetives_button = Button(self.root, text=u'轉成負片', command=self.image_nagetives)
-        # image_nagetives_button.grid(row=3, column=2, columnspan=3)
-        dark_idensity_transform_button = Button(self.root, text=u'亮度調暗', command=self.dark_image)
-        dark_idensity_transform_button.grid(row=4, column=0, columnspan=3)
-        bright_idensity_transform_button = Button(self.root, text=u'亮度調亮', command=self.bright_image)
-        bright_idensity_transform_button.grid(row=4, column=1, columnspan=3)
-        red_color_transform_button = Button(self.root, text=u'增強紅色(顏色處理)', command=self.red_color_transform)
-        red_color_transform_button.grid(row=5, column=0, columnspan=2)
-        green_color_transform_button = Button(self.root, text=u'增強綠色(顏色處理)', command=self.green_color_transform)
-        green_color_transform_button.grid(row=5, column=1, columnspan=2)
-        blue_color_transform_button = Button(self.root, text=u'增強藍色(顏色處理)', command=self.blue_color_transform)
-        blue_color_transform_button.grid(row=5, column=2, columnspan=2)
-        histogram_equalization_button = Button(self.root, text=u'分布圖均勻化(增加對比)', command=self.histogram_equalization)
-        histogram_equalization_button.grid(row=6, column=0, columnspan=1)
-        peak_and_valley_filter_button = Button(self.root, text=u'波峰波谷濾波器(去除雜訊)', command=self.peak_and_valley_filter)
-        peak_and_valley_filter_button.grid(row=6, column=1, columnspan=1)
-        median_filter_button = Button(self.root, text=u'中值濾波器(去除雜訊)', command=self.median_filter)
-        median_filter_button.grid(row=6, column=2, columnspan=1)
-        rotate_image_button = Button(self.root, text=u'向右旋轉 90 度', command=self.rotate_image)
-        rotate_image_button.grid(row=6, column=3, columnspan=1)
+        Button(self.root, text=u'讀取 Image', command=self.load_img).grid(row=1, columnspan=8)
+
+        Button(self.root, text=u'裁切', command=self.corp_image).grid(row=3, column=0, columnspan=2)
+        Button(self.root, text=u'二值化', command=self.binary_image).grid(row=3, column=2, columnspan=2)
+        Button(self.root, text=u'轉成灰階', command=self.RGB_to_Gray).grid(row=3, column=4, columnspan=2)
+        Button(self.root, text=u'侵蝕擴張法', command=self.erode_dilate).grid(row=3, column=6, columnspan=2)
+        # Button(self.root, text=u'轉成負片', command=self.image_nagetives).grid(row=3, column=2, columnspan=3)
+
+        Button(self.root, text=u'裁切對話框', command=self.corp_dialog).grid(row=4, column=0, columnspan=3)
+        Button(self.root, text=u'亮度調暗', command=self.dark_image).grid(row=4, column=3, columnspan=3)
+        Button(self.root, text=u'亮度調亮', command=self.bright_image).grid(row=4, column=6, columnspan=2)
         
-        recover_button = Button(self.root, text=u'回到上一步', command=self.recover_img)
-        recover_button.grid(row=7, columnspan=6)
+        Button(self.root, text=u'增強紅色(顏色處理)', command=self.red_color_transform).grid(row=5, column=0, columnspan=3)
+        Button(self.root, text=u'增強綠色(顏色處理)', command=self.green_color_transform).grid(row=5, column=3, columnspan=3)
+        Button(self.root, text=u'增強藍色(顏色處理)', command=self.blue_color_transform).grid(row=5, column=6, columnspan=2)
+
+        Button(self.root, text=u'分布圖均勻化(增加對比)', command=self.histogram_equalization).grid(row=6, column=0, columnspan=2)
+        Button(self.root, text=u'波峰波谷濾波器(去除雜訊)', command=self.peak_and_valley_filter).grid(row=6, column=2, columnspan=2)
+        Button(self.root, text=u'中值濾波器(去除雜訊)', command=self.median_filter).grid(row=6, column=4, columnspan=2)
+        Button(self.root, text=u'向右旋轉 90 度', command=self.rotate_image).grid(row=6, column=6, columnspan=2)
+        
+        Button(self.root, text=u'一鍵擷取對話框', command=self.corp_dialog_one_step).grid(row=7, column=0, columnspan=3)
+        Button(self.root, text=u'一鍵擷取表格', command=self.corp_table_one_step).grid(row=7, column=3, columnspan=3)
+
+        Button(self.root, text=u'回到上一步', command=self.recover_img).grid(row=8, columnspan=8)
 
         self.root.grid()
         self.root.mainloop()
