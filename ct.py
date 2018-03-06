@@ -349,12 +349,141 @@ class ImageProcessing:
         self.save_img(self.img, '3-after_erode_and_dilate_once.png',
                       '/Users/candy/Workspace/Paper_CT/output/' + self.fileName.split('/')[-1].split('.')[0] + '/')
         self.corp_blood_vessel()
+        self.refind_blood_vessel()
 
     def corp_table_one_step(self):
         self.load_img()
         self.corp_image()
         self.binary_image()
         self.corp_dialog()
+
+    def refind_blood_vessel(self):
+        output_file_path = '/Users/candy/Workspace/Paper_CT/output'
+        file_index = self.fileName.split('/')[-1].split('.')[0]
+        img = cv2.imread('{}/{}/4-find_contours_over_1000_point.png'.format(output_file_path, file_index), 0)
+
+        rows, cols = img.shape[:2]
+
+        last_width = 0
+        vessels_pos = []
+        vessels_width = 60
+
+        img_find_row = cv2.imread('{}/{}/7-refind_contours.png'.format(output_file_path, file_index), 0)
+        row_index = rows
+        break_flag = 0
+        stop_flag = 0
+        stop_row = 0
+        for row in range(rows)[::-1]:
+            for col in range(cols):
+                if img_find_row[row, col] != 0:
+                    row_index = row
+                    break_flag = 1
+                    break
+                img[row, col] = 0
+            if break_flag == 1:
+                print(rows, row_index)
+                break
+            vessels_pos.append([0, 0])
+
+        verticle_flag = 0
+        for row in range(row_index + 1)[::-1]:
+            start_x1 = 0
+            start_x2 = 0
+            this_width = 0
+            break_flag = 0
+
+            if verticle_flag == 0:
+                for col in range(cols):
+                    if img[row, col] != 0 and break_flag == 0:
+                        break_flag = 1
+                        start_x1 = col
+                        continue
+                    elif img[row, col] == 0 and break_flag == 1:
+                        if vessels_pos[-1][0] == 0 or (vessels_pos[-1][1] + vessels_width / 2 > col > vessels_pos[-1][
+                            1] - vessels_width / 2 and start_x1 < vessels_pos[-1][0] + vessels_width / 2) or (
+                                vessels_pos[-1][0] + vessels_width / 2 > start_x1 > vessels_pos[-1][
+                            0] - vessels_width / 2 and col > vessels_pos[-1][1] - vessels_width / 2):
+                            start_x2 = col
+                            break_flag = 2
+                            verticle_flag = 1
+                            continue
+                        else:
+                            for x in range(start_x1, col):
+                                img[row, x] = 0
+                            start_x1 = -1
+                            break_flag = 0
+                            continue
+                    elif break_flag == 2:
+                        img[row, col] = 0
+
+                this_width = start_x2 - start_x1
+
+                if abs(last_width - this_width) > vessels_width:
+                    if abs(vessels_pos[-1][0] - start_x1) <= abs(vessels_pos[-1][1] - start_x2):
+                        for col in range(start_x1 + last_width, start_x2 + 1):
+                            img[row, col] = 0
+                            start_x2 = start_x1 + last_width
+                    else:
+                        for col in range(start_x1, start_x2 - last_width + 1):
+                            img[row, col] = 0
+                            start_x1 = start_x2 - last_width
+                    if stop_flag == 0:
+                        stop_row = row
+                    stop_flag = 1
+                    this_width = 0
+                if this_width != 0:
+                    stop_row = 0
+                    stop_flag = 0
+                    last_width = this_width
+                # vessels_pos.append([start_x1, start_x2])
+            else:
+                min_x1 = None
+                min_x2 = 0
+                for col in range(vessels_pos[-1][0], vessels_pos[-1][1] + 1):
+                    if img[row, col] != 0:
+                        if min_x1 is None:
+                            min_x1 = col
+                        if col > min_x2:
+                            min_x2 = col
+                if min_x1 is None:
+                    stop_row = row
+                    for col in range(cols):
+                        img[row, col] = 0
+                    vessels_pos.append([0, 0])
+                    continue
+                start_x1 = min_x1
+                start_x2 = min_x2
+                if min_x1 == vessels_pos[-1][0]:
+                    for col in range(min_x1 - vessels_width, min_x1)[::-1]:
+                        if img[row, col] == 0:
+                            start_x1 = col + 1
+                            break
+                if min_x2 == vessels_pos[-1][1]:
+                    for col in range(min_x2, min_x2 + vessels_width):
+                        if img[row, col] == 0:
+                            start_x2 = col - 1
+                            break
+                for col in range(0, start_x1):
+                    img[row, col] = 0
+                for col in range(start_x2 + 1, cols):
+                    img[row, col] = 0
+            vessels_pos.append([start_x1, start_x2])
+
+        for row in range(stop_row, rows)[::-1]:
+            if vessels_pos[-row][1] - vessels_pos[-row][0] > 100:
+                stop_row = row
+                break
+
+        for row in range(stop_row):
+            for col in range(cols):
+                img[row, col] = 0
+
+        print(vessels_pos)
+
+        # last_img = cv2.imread('{}/{}/00-last_result.png'.format(output_file_path, file_index), 0)
+        origin_img = cv2.imread('{}/{}/1-original.png'.format(output_file_path, file_index), 0)
+        img = cv2.bitwise_and(img, origin_img)
+        cv2.imwrite('{}/{}/01-last_result.png'.format(output_file_path, file_index), img)
 
     def save_img(self, img, file_name='test1.png', file_root='/Users/candy/Workspace/Paper_CT/'):
         cv2.imwrite(file_root + file_name, img)
