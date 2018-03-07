@@ -72,8 +72,19 @@ class ImageProcessing:
                       '/Users/candy/Workspace/Paper_CT/output/' + self.fileName.split('/')[-1].split('.')[0] + '/')
 
         image, contours, hierarchy = cv2.findContours(self.img, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        length_contours = [len(x) for x in contours]
-        new_contours = [contours[length_contours.index(max(length_contours))]]
+        new_contours = []
+        max_width_height = 0
+        for index in range(len(contours)):
+            if len(contours[index]) < 100:
+                continue
+            height = self._get_contour_height(contours, index)
+            width = self._get_contour_width(contours, index)
+            if height > max_width_height:
+                new_contours = [contours[index]]
+                max_width_height = height
+
+        # length_contours = [len(x) for x in contours]
+        # new_contours = [contours[length_contours.index(max(length_contours))]]
         # min_y = min(np.array(new_contours[0])[:, :, 1])        
         # max_y = max(np.array(new_contours[0])[:, :, 1])
 
@@ -88,13 +99,14 @@ class ImageProcessing:
                       '/Users/candy/Workspace/Paper_CT/output/' + self.fileName.split('/')[-1].split('.')[0] + '/')
         Label(self.root, text=u'已變動次數：' + str(len(self.origin_img))).grid(row=2, columnspan=8)
 
-    def _get_contour_min_y(self, contours):
-        contour = np.array(contours[0])
-        return min(contour[:, 1])
+    def _get_contour_height(self, contours, index=0):
+        contour = np.array(contours[index])
+        print(contour)
+        return max(contour[:, :, 1])-min(contour[:, :, 1])
 
-    def _get_contour_max_y(self, contours):
-        contour = np.array(contours[0])
-        return max(contour[:, 1])
+    def _get_contour_width(self, contours, index=0):
+        contour = np.array(contours[index])
+        return max(contour[:, :, 0])-min(contour[:, :, 0])
 
     def histogram_equalization(self):
         self.origin_img.append(copy.deepcopy(self.img))
@@ -381,7 +393,6 @@ class ImageProcessing:
                     break
                 img[row, col] = 0
             if break_flag == 1:
-                print(rows, row_index)
                 break
             vessels_pos.append([0, 0])
 
@@ -478,12 +489,17 @@ class ImageProcessing:
             for col in range(cols):
                 img[row, col] = 0
 
-        print(vessels_pos)
 
         # last_img = cv2.imread('{}/{}/00-last_result.png'.format(output_file_path, file_index), 0)
         origin_img = cv2.imread('{}/{}/1-original.png'.format(output_file_path, file_index), 0)
         img = cv2.bitwise_and(img, origin_img)
         cv2.imwrite('{}/{}/01-last_result.png'.format(output_file_path, file_index), img)
+
+        image, contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        x, y, w, h = cv2.boundingRect(contours[0])
+        img = img[y:y + h, x:x + w]
+
+        cv2.imwrite('{}/{}/02-last_result.png'.format(output_file_path, file_index), img)
 
     def save_img(self, img, file_name='test1.png', file_root='/Users/candy/Workspace/Paper_CT/'):
         cv2.imwrite(file_root + file_name, img)
@@ -509,10 +525,11 @@ class ImageProcessing:
         cv2.destroyAllWindows()
 
     def openFile(self):
-        self.fileName = filedialog.askopenfile(parent=self.root, initialdir='./', title='Select Image',
+        self.fileName = filedialog.askopenfile(parent=self.root, initialdir='./wanfang/user1/', title='Select Image',
                                                  filetypes=[('image files', '.png'), ('image files', '.jpg')])
         self.fileName = self.fileName.name
         self.image_filename["text"] = u'Image 檔名：{}'.format(self.fileName)
+        self.corp_blood_vessel_one_step()
 
     def init_window(self):
         self.root.title(u'Image Processing')
