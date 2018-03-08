@@ -501,6 +501,14 @@ class ImageProcessing:
 
         cv2.imwrite('{}/{}/02-last_result.png'.format(output_file_path, file_index), img)
 
+        rows, cols = img.shape[:2]
+        zero_counter = 0
+        for row in range(rows):
+            for col in range(cols):
+                if img[row, col] != 0:
+                    zero_counter += 1
+        print(sum(img.flatten()) // zero_counter)
+
     def save_img(self, img, file_name='test1.png', file_root='/Users/candy/Workspace/Paper_CT/'):
         cv2.imwrite(file_root + file_name, img)
 
