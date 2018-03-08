@@ -1,0 +1,7 @@
+*.png
+*.pptx
+cifar10Test/*
+.idea/*
+wanfang/*
+reference
+output/*
