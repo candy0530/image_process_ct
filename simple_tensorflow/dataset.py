@@ -11,6 +11,8 @@ def load_train(train_path, image_size, classes):
     img_names = []
     cls = []
 
+    minus_number = {'01': 143, '02': 145, '03': 144, '04': 143, '05': 139, '06': 140, '07': 162, '08': 161, '09': 162, '10':145 , '11': 169, '12': 171, '13': 129, '14': 150, '15': 150, '16': 149, '17': 160, '18': 160, '19': 155, '20': 146, '21': 142, '22': 139, '23': 142, '24': 135, '25': 134, '26': 155, '27': 147, '28': 150, '29': 142, '30': 144}
+
     print('Going to read training images')
     for fields in classes:
         index = classes.index(fields)
@@ -21,6 +23,8 @@ def load_train(train_path, image_size, classes):
             image = cv2.imread(fl, 0)
             image = cv2.resize(image, (image_size, image_size), 0, 0, cv2.INTER_LINEAR)
             image = image.astype(np.float32)
+            # minus gray average of 14
+            image = np.subtract(image, minus_number['14'])
             image = np.multiply(image, 1.0 / 255.0)
             image = np.reshape(image, (15, 15, 1))
             images.append(image)
@@ -90,7 +94,7 @@ class DataSet(object):
     return self._images[start:end], self._labels[start:end], self._img_names[start:end], self._cls[start:end]
 
 
-def read_train_sets(train_path, image_size, classes):  # , validation_size):
+def read_train_sets(train_path, image_size, classes):
   class DataSets(object):
     pass
   data_sets = DataSets()
@@ -98,20 +102,11 @@ def read_train_sets(train_path, image_size, classes):  # , validation_size):
   images, labels, img_names, cls = load_train(train_path, image_size, classes)
   images, labels, img_names, cls = shuffle(images, labels, img_names, cls)
 
-  # if isinstance(validation_size, float):
-  #   validation_size = int(validation_size * images.shape[0])
-  #
-  # validation_images = images[:validation_size]
-  # validation_labels = labels[:validation_size]
-  # validation_img_names = img_names[:validation_size]
-  # validation_cls = cls[:validation_size]
-
-  train_images = images[:]  # validation_size:]
-  train_labels = labels[:]  # validation_size:]
-  train_img_names = img_names[:]  # validation_size:]
-  train_cls = cls[:]  # validation_size:]
+  train_images = images[:]  # len(images)*80//100]  # validation_size:]
+  train_labels = labels[:]  # len(images)*80//100]  # validation_size:]
+  train_img_names = img_names[:]  # len(images)*80//100]  # validation_size:]
+  train_cls = cls[:]  # len(images)*80//100]  # validation_size:]
 
   data_sets.train = DataSet(train_images, train_labels, train_img_names, train_cls)
-  # data_sets.valid = DataSet(validation_images, validation_labels, validation_img_names, validation_cls)
 
   return data_sets

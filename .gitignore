@@ -8,5 +8,5 @@ output/*
 CXR8/
 MNIST_data/
 *.jpg
-simple_tensorflow/v*/*.*
 simple_tensorflow/v*/*
+simple_tensorflow/model_v*/*

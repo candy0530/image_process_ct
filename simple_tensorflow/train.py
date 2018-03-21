@@ -14,7 +14,9 @@ from tensorflow import set_random_seed
 
 set_random_seed(2)
 
-batch_size = 32418  #19450#128#32
+model_version = 'v3'
+batch_size = 13075  # 32418#19450#128#32
+iteration_times = 2000
 
 # Prepare input data
 classes = ['yes', 'no']
@@ -24,7 +26,7 @@ num_classes = len(classes)
 # validation_size = 0.2
 img_size = 15  # 128
 num_channels = 1
-train_path = 'training_data'
+train_path = '14_new/15x15'#'training_data'
 
 # We shall load all the training and validation images and labels into memory using openCV and use that during training
 data = dataset.read_train_sets(train_path, img_size, classes)  #, validation_size=validation_size)
@@ -159,11 +161,11 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 session.run(tf.global_variables_initializer())
 
 
-def show_progress(epoch, feed_dict_train):  #, feed_dict_validate, val_loss):
+def show_progress(epoch, feed_dict_train, tr_loss):  #, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     # val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}"  # , Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-    print(msg.format(epoch + 1, acc))  # , val_acc, val_loss))
+    msg = "Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Training Loss: {2:.3f}"  # , Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
+    print(msg.format(epoch + 1, acc, tr_loss))  # , val_acc, val_loss))
 
 
 total_iterations = 0
@@ -189,14 +191,15 @@ def train(num_iteration):
 
         if i % int(data.train.num_examples / batch_size) == 0:
             # val_loss = session.run(cost, feed_dict=feed_dict_val)
+            tr_loss = session.run(cost, feed_dict=feed_dict_tr)
             epoch = int(i / int(data.train.num_examples / batch_size))
 
-            show_progress(epoch, feed_dict_tr)  # , feed_dict_val, val_loss)
+            show_progress(epoch, feed_dict_tr, tr_loss)  # , feed_dict_val, val_loss)
             # if greatest_val_loss > val_loss:
-            saver.save(session, './v3-yes-no-model')
+            saver.save(session, './model_{}/yes-no-model'.format(model_version))
                 # greatest_val_loss = val_loss
 
     total_iterations += num_iteration
 
 
-train(num_iteration=3000)
+train(num_iteration=iteration_times)
