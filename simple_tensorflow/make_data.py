@@ -57,6 +57,14 @@ def corp_vessels():
     cv2.imwrite('/Users/candy/Workspace/Paper_CT/output/{}/02-last_result.png'.format(image_index), image)
 
 
+def get_yes_array():
+    image = cv2.imread('/Users/candy/Workspace/Paper_CT/output/{}/02-last_result.png'.format(image_index), 0)
+    for row in range(25, 44):
+        for col in range(64, 77):
+            if img[row, col] == 0:
+                print('[{}, {}]'.format(row, col))
+
+
 def get_average_value(image_index):
     img = cv2.imread('/Users/candy/Workspace/Paper_CT/output/{}/02-last_result.png'.format(image_index), 0)
     rows, cols = img.shape[:2]
@@ -66,6 +74,30 @@ def get_average_value(image_index):
             if img[row, col] != 0:
                 zero_counter += 1
     return sum(img.flatten()) // zero_counter
+
+
+def skeletonize(image_index)
+    file_path = '/Users/candy/Workspace/Paper_CT/output/{}'.format(image_index)
+    img = cv2.imread('{}/02-last_result.png'.format(file_path), 0)
+    size = np.size(img)
+    skel = np.zeros(img.shape, np.uint8)
+
+    ret, img = cv2.threshold(img, 80, 255, 0)
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    done = False
+
+    while not done:
+        eroded = cv2.erode(img, element)
+        temp = cv2.dilate(eroded, element)
+        temp = cv2.subtract(img, temp)
+        skel = cv2.bitwise_or(skel, temp)
+        img = eroded.copy()
+
+        zeros = size - cv2.countNonZero(img)
+        if zeros == size:
+            done = True
+
+    cv2.imwrite('{}/02-skeletonize_result.png'.format(file_path), skel)
 
 
 def refind_vessels(image_index):
