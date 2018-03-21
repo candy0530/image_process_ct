@@ -339,7 +339,6 @@ class ImageProcessing:
 
         Button(self.root, text=u'框出血管', command=self.corp_blood_vessel).grid(row=3, column=0, columnspan=2)
         Button(self.root, text=u'一鍵擷取血管', command=self.corp_blood_vessel_one_step).grid(row=3, column=2, columnspan=2)
-        Button(self.root, text=u'一鍵擷取表格', command=self.corp_table_one_step).grid(row=3, column=4, columnspan=2)
 
         Button(self.root, text=u'侵蝕 法', command=self.erode).grid(row=5, column=0, columnspan=2)
         Button(self.root, text=u'擴張 法', command=self.dilate).grid(row=5, column=2, columnspan=2)
